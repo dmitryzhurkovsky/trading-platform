@@ -34,6 +34,8 @@ class Price(models.Model):
     currency = models.ForeignKey(Currency, blank=True, null=True, on_delete=models.SET_NULL)
     item = models.ForeignKey(Item, blank=True, null=True, on_delete=models.CASCADE, related_name='prices',
                              related_query_name='prices')
+    price = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
+    date = models.DateTimeField(unique=True, blank=True, null=True)
 
 
 class WatchList(models.Model):
