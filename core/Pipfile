@@ -6,8 +6,17 @@ name = "pypi"
 [packages]
 djangorestframework = "*"
 psycopg2 = "*"
+djangorestframework-simplejwt = "*"
+celery = "*"
+redis = "*"
 
 [dev-packages]
+pytest = "*"
+faker = "*"
+pytest-django = "*"
+flake8 = "*"
+mypy = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.9"

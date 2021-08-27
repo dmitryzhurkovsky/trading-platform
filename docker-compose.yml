@@ -3,8 +3,6 @@ version: "3.9"
 services:
   db:
     image: postgres
-    volumes:
-        - ./data/db:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -24,3 +22,19 @@ services:
       - 8000:8000
     depends_on:
       - db
+      - redis
+
+  redis:
+    image: redis:alpine
+
+  celery:
+    build: core
+    command: celery -A project worker -l info
+    depends_on:
+      - redis
+
+  celery-beat:
+    build: core
+    command: celery -A project beat -l info
+    depends_on:
+      - redis

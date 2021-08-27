@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from users.models import CustomUser as User
 from django.db import models
 
 
@@ -60,10 +60,9 @@ class Offer(models.Model):
 
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
     item = models.ForeignKey(Item, blank=True, null=True, on_delete=models.SET_NULL)
-    entity_quantity = models.IntegerField("Requested quantity")
-    # quantity = models.IntegerField("Current quantity")  # todo Foreign key to inventory?
-    quantity = models.ForeignKey(Inventory, blank=True, null=True, on_delete=models.SET_NULL)
-    order_type = models.PositiveSmallIntegerField(choices=OrderType)
+    requested_quantity = models.IntegerField("Requested quantity")
+    # current_quantity = models.IntegerField("Current quantity")
+    order_type = models.CharField(choices=OrderType, max_length=1)
     price = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
