@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Optional
 
 from django.db import transaction
@@ -15,10 +16,10 @@ def make_deal(
         buyer: CustomUser,
         seller: CustomUser,
         quantity: int,
-        unit_price,  # todo
+        unit_price: Decimal,
         description: Optional[str] = None,
 ):
-    deal_price = float(unit_price) * quantity
+    deal_price = int(unit_price) * quantity
 
     buyer_offer.is_active = False
     seller_offer.is_active = False
@@ -56,7 +57,7 @@ def make_deal(
 
 @app.task
 def find_best_offers_and_make_deal():
-    offers = {
+    offers: dict = {
         'BUY': [],
         'SOLD': []
     }

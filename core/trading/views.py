@@ -68,7 +68,6 @@ class WatchListViewSet(
 
 class InventoryViewSet(
     mixins.ListModelMixin,
-    mixins.CreateModelMixin,
     viewsets.GenericViewSet
 ):
     permission_classes = (IsAuthenticated,)

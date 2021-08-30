@@ -13,11 +13,9 @@ def test_validation_creating_offer():
 
     buyer = User.objects.create(username='buyer', password='some', money=1000)
     seller = User.objects.create(username='seller', password='some', money=1000)
-    assert User.objects.count() == 2
 
     Inventory.objects.create(user=buyer, item=item, quantity=1)
     Inventory.objects.create(user=seller, item=item, quantity=1)
-    assert Inventory.objects.count() == 2
 
     client = APIClient()
 
@@ -77,17 +75,14 @@ def test_find_best_offers_task():
     currency = Currency.objects.create(code='USD', name='United State Dollar')
     apple_stock = Item.objects.create(code='AAPL', name='Apple', price=200, currency=currency)
     tesla_stock = Item.objects.create(code='TSL', name='Tesla', price=200, currency=currency)
-    assert Item.objects.count() == 2
 
     buyer = User.objects.create(username='buyer', password='some', money=5000)
     seller = User.objects.create(username='seller', password='some', money=5000)
-    assert User.objects.count() == 2
 
     Inventory.objects.create(user=buyer, item=apple_stock, quantity=4)
     Inventory.objects.create(user=seller, item=apple_stock, quantity=4)
     Inventory.objects.create(user=buyer, item=tesla_stock, quantity=4)
     Inventory.objects.create(user=seller, item=tesla_stock, quantity=4)
-    assert Inventory.objects.count() == 4
 
     offer_to_buy_apple_stocks = Offer.objects.create(
         user=buyer,
