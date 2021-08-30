@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 from django.db import models
 
@@ -62,15 +62,14 @@ class Inventory(models.Model):
 
 class Offer(models.Model):
     """Request to buy or sell specific stocks"""
-    class OrderType(Enum):
+    class OrderType(models.IntegerChoices):
         BUY = 1
         SOLD = 2
 
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
     item = models.ForeignKey(Item, blank=True, null=True, on_delete=models.SET_NULL)
     requested_quantity = models.IntegerField("Requested quantity")
-    # current_quantity = models.IntegerField("Current quantity")
-    order_type = models.PositiveSmallIntegerField(OrderType)
+    order_type = models.IntegerField(choices=OrderType.choices)
     price = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     is_active = models.BooleanField(default=True)
 

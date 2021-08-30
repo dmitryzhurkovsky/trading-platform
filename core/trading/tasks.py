@@ -1,19 +1,22 @@
+from typing import Optional
+
 from django.db import transaction
 
 from project.celery import app
-from trading.models import Inventory, Offer, Trade
+from trading.models import Inventory, Offer, Trade, Item
+from users.models import CustomUser
 
 
 @transaction.atomic
 def make_deal(
-        item,
-        buyer_offer,
-        seller_offer,
-        buyer,
-        seller,
-        quantity,
-        unit_price,
-        description=None,
+        item: Item,
+        buyer_offer: Offer,
+        seller_offer: Offer,
+        buyer: CustomUser,
+        seller: CustomUser,
+        quantity: int,
+        unit_price, # todo
+        description: Optional[str] = None,
 ):
     deal_price = float(unit_price) * quantity
 

@@ -20,12 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*6_6yh%1%-g80^n2ixzid0+-6+^9b!=(k68ut4^20-0$0#1-g_'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'foo')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(os.getenv('DJANGO_DEBUG', default=0))
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(" ")
 
 # Application definition
 
@@ -78,12 +78,12 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.environ.get("DB_NAME", os.path.join(BASE_DIR, "db.sqlite3")),
-        "USER": os.environ.get("DB_USER", "user"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", "password"),
-        "HOST": os.environ.get("DB_HOST", "localhost"),
-        "PORT": os.environ.get("DB_PORT", "5432"),
+        "ENGINE": os.environ.get("DJANGO_DB_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("DJANGO_DB_NAME", os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER": os.environ.get("DJANGO_DB_USER", "user"),
+        "PASSWORD": os.environ.get("DJANGO_DB_PASSWORD", "password"),
+        "HOST": os.environ.get("DJANGO_DB_HOST", "localhost"),
+        "PORT": os.environ.get("DJANGO_DB_PORT", "5432"),
     }
 }
 
@@ -144,7 +144,7 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': False,
 
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
+    'SIGNING_KEY': os.getenv('JWT_SECRET_KEY', 'foo'),
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
