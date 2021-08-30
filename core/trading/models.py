@@ -1,5 +1,3 @@
-from enum import Enum, IntEnum
-
 from django.db import models
 
 from users.models import CustomUser as User

@@ -3,7 +3,7 @@ from typing import Optional
 from django.db import transaction
 
 from project.celery import app
-from trading.models import Inventory, Offer, Trade, Item
+from trading.models import Inventory, Item, Offer, Trade
 from users.models import CustomUser
 
 
@@ -15,7 +15,7 @@ def make_deal(
         buyer: CustomUser,
         seller: CustomUser,
         quantity: int,
-        unit_price, # todo
+        unit_price,  # todo
         description: Optional[str] = None,
 ):
     deal_price = float(unit_price) * quantity
