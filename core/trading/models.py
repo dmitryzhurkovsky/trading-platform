@@ -1,5 +1,8 @@
-from users.models import CustomUser as User
+from enum import Enum
+
 from django.db import models
+
+from users.models import CustomUser as User
 
 
 class StockBase(models.Model):
@@ -32,8 +35,14 @@ class Item(StockBase):
 class Price(models.Model):
     """stock price"""
     currency = models.ForeignKey(Currency, blank=True, null=True, on_delete=models.SET_NULL)
-    item = models.ForeignKey(Item, blank=True, null=True, on_delete=models.CASCADE, related_name='prices',
-                             related_query_name='prices')
+    item = models.ForeignKey(
+        Item,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='prices',
+        related_query_name='prices'
+    )
     price = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     date = models.DateTimeField(unique=True, blank=True, null=True)
 
@@ -53,16 +62,15 @@ class Inventory(models.Model):
 
 class Offer(models.Model):
     """Request to buy or sell specific stocks"""
-    OrderType = (
-        ('b', 'Buy'),
-        ('s', 'Sold')
-    )
+    class OrderType(Enum):
+        BUY = 1
+        SOLD = 2
 
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
     item = models.ForeignKey(Item, blank=True, null=True, on_delete=models.SET_NULL)
     requested_quantity = models.IntegerField("Requested quantity")
     # current_quantity = models.IntegerField("Current quantity")
-    order_type = models.CharField(choices=OrderType, max_length=1)
+    order_type = models.PositiveSmallIntegerField(OrderType)
     price = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     is_active = models.BooleanField(default=True)
 

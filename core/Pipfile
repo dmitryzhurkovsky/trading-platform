@@ -17,6 +17,8 @@ pytest-django = "*"
 flake8 = "*"
 mypy = "*"
 pylint = "*"
+django-stubs = "*"
+djangorestframework-stubs = "*"
 
 [requires]
 python_version = "3.9"

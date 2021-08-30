@@ -1,12 +1,6 @@
 from rest_framework import serializers
 
-from trading.models import (
-    Offer,
-    Item,
-    Currency,
-    Trade,
-    Inventory
-)
+from trading.models import Currency, Inventory, Item, Offer, Trade
 
 
 class OfferSerializer(serializers.ModelSerializer):
@@ -22,14 +16,14 @@ class OfferSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        if data.get('order_type') == 'b':
+        if data.get('order_type') == Offer.OrderType.BUY.value:
             if data.get('user').money < data.get('requested_quantity') * data.get('price'):
                 raise serializers.ValidationError('You haven\'t enough money')
 
-        elif data.get('order_type') == 's':
+        elif data.get('order_type') == Offer.OrderType.SOLD.value:
             if Inventory.objects.get(
-                user=data.get('user'),
-                item=data.get('item')
+                    user=data.get('user'),
+                    item=data.get('item')
             ).quantity < data.get('requested_quantity'):
                 raise serializers.ValidationError('You haven\'t enough stocks')
 
@@ -39,28 +33,28 @@ class OfferSerializer(serializers.ModelSerializer):
 class ItemsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        exclude = ('id', )
+        exclude = ('id',)
 
 
 class CurrencySerializer(serializers.ModelSerializer):
     class Meta:
         model = Currency
-        exclude = ('id', )
+        exclude = ('id',)
 
 
 class TradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trade
-        exclude = ('id', )
+        exclude = ('id',)
 
 
 class WatchListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        exclude = ('id', )
+        exclude = ('id',)
 
 
 class InventorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Inventory
-        exclude = ('id', )
+        exclude = ('id',)

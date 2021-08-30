@@ -1,7 +1,7 @@
 from django.db import transaction
 
 from project.celery import app
-from trading.models import Offer, Item, Inventory, Trade
+from trading.models import Inventory, Offer, Trade
 
 
 @transaction.atomic
@@ -54,22 +54,21 @@ def make_deal(
 @app.task
 def find_best_offers_and_make_deal():
     offers = {
-        'b': [],
-        's': []
+        'BUY': [],
+        'SOLD': []
     }
 
     active_offers = Offer.objects.filter(
         is_active=True
     ).all()
     for offer in active_offers:
-        offers[offer.order_type].append(offer)
+        offers[offer.OrderType(offer.order_type).name].append(offer)
 
-    for buyer_offer in offers['b'][::-1]:
-        for seller_offer in offers['s'][::-1]:
+    for buyer_offer in offers['BUY'][::-1].__iter__():
+        for seller_offer in offers['SOLD'][::-1].__iter__():
             if buyer_offer.item == seller_offer.item:
-                if (buyer_offer.price == seller_offer.price and
-                        buyer_offer.requested_quantity <= seller_offer.requested_quantity):
-
+                if buyer_offer.price == seller_offer.price \
+                        and buyer_offer.requested_quantity <= seller_offer.requested_quantity:
                     make_deal(
                         item=seller_offer.item,
                         buyer_offer=buyer_offer,
@@ -79,6 +78,6 @@ def find_best_offers_and_make_deal():
                         quantity=buyer_offer.requested_quantity,
                         unit_price=seller_offer.price
                     )
-                    offers['s'].pop()
-                    offers['b'].pop()
+                    offers['SOLD'].pop()
+                    offers['BUY'].pop()
                     break

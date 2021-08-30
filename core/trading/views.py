@@ -1,21 +1,14 @@
 from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from common.services import make_deal
-from trading.models import (
-    Offer,
-    Item,
-    Currency,
-    Trade,
-    Inventory,
-)
+from trading.models import Currency, Inventory, Item, Offer, Trade
 from trading.serializers import (
-    OfferSerializer,
-    WatchListSerializer,
-    ItemsSerializer,
     CurrencySerializer,
-    TradeSerializer,
     InventorySerializer,
+    ItemsSerializer,
+    OfferSerializer,
+    TradeSerializer,
+    WatchListSerializer
 )
 
 
@@ -49,10 +42,8 @@ class CurrencyViewSet(
     serializer_class = CurrencySerializer
 
 
-class TradeVieSet(
+class TradeViewSet(
     mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
     viewsets.GenericViewSet
 ):
     queryset = Trade.objects.all()
@@ -64,7 +55,7 @@ class WatchListViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet
 ):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     serializer_class = WatchListSerializer
 
     def get_queryset(self):
