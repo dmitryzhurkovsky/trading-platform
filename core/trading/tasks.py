@@ -1,5 +1,4 @@
-from decimal import Decimal
-from typing import Optional
+from typing import List, Optional
 
 from django.db import transaction
 
@@ -15,14 +14,16 @@ def make_deal(
         seller_offer: Offer,
         buyer: CustomUser,
         seller: CustomUser,
-        quantity: int,
-        unit_price: Decimal,
         description: Optional[str] = None,
-):
+) -> None:
+    if buyer_offer.requested_quantity >= seller_offer.requested_quantity:
+        quantity = seller_offer.requested_quantity
+    else:
+        quantity = buyer_offer.requested_quantity
+
+    unit_price = seller_offer.price
     deal_price = int(unit_price) * quantity
 
-    buyer_offer.is_active = False
-    seller_offer.is_active = False
     buyer.money -= deal_price
     seller.money += deal_price
     buyer_inventory = Inventory.objects.get(
@@ -48,6 +49,17 @@ def make_deal(
         buyer_offer=buyer_offer,
         seller_offer=seller_offer
     )
+
+    if seller_offer.requested_quantity == buyer_offer.requested_quantity:
+        seller_offer.is_active = False
+        buyer_offer.is_active = False
+    elif seller_offer.requested_quantity < buyer_offer.requested_quantity:
+        seller_offer.is_active = False
+    else:
+        buyer_offer.is_active = False
+
+    buyer_offer.requested_quantity -= seller_offer.requested_quantity
+
     buyer_offer.save()
     seller_offer.save()
     buyer.save()
@@ -55,33 +67,35 @@ def make_deal(
     trade.save()
 
 
+def find_available_sell_offers(
+        offer: Offer
+) -> List[Offer]:
+    """Finds all available offers for the sale of stock sorted by price and then by quantity. """
+    available_offers = Offer.objects.filter(
+        is_active=True,
+        order_type=Offer.OrderType.SOLD,
+        item=offer.item,
+        requested_quantity__lte=offer.requested_quantity,
+        price__lte=offer.price
+    ).order_by('price', 'requested_quantity')
+
+    return available_offers
+
+
 @app.task
-def find_best_offers_and_make_deal():
-    offers: dict = {
-        'BUY': [],
-        'SOLD': []
-    }
-
-    active_offers = Offer.objects.filter(
+def find_best_offers_and_make_deal() -> None:
+    """Finds all available offers for the sale of a stock and then makes deal with the lowest available price."""
+    active_buy_offers = Offer.objects.filter(
+        order_type=Offer.OrderType.BUY,
         is_active=True
-    ).all()
-    for offer in active_offers:
-        offers[offer.OrderType(offer.order_type).name].append(offer)
+    )
 
-    for buyer_offer in offers['BUY'][::-1].__iter__():
-        for seller_offer in offers['SOLD'][::-1].__iter__():
-            if buyer_offer.item == seller_offer.item:
-                if buyer_offer.price == seller_offer.price \
-                        and buyer_offer.requested_quantity <= seller_offer.requested_quantity:
-                    make_deal(
-                        item=seller_offer.item,
-                        buyer_offer=buyer_offer,
-                        seller_offer=seller_offer,
-                        buyer=buyer_offer.user,
-                        seller=seller_offer.user,
-                        quantity=buyer_offer.requested_quantity,
-                        unit_price=seller_offer.price
-                    )
-                    offers['SOLD'].pop()
-                    offers['BUY'].pop()
-                    break
+    for buy_offer in active_buy_offers:
+        for sell_offer in find_available_sell_offers(buy_offer):
+            make_deal(
+                item=buy_offer.item,
+                buyer_offer=buy_offer,
+                seller_offer=sell_offer,
+                buyer=buy_offer.user,
+                seller=sell_offer.user,
+            )

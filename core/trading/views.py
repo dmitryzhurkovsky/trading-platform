@@ -62,7 +62,7 @@ class WatchListViewSet(
         user = self.request.user
         queryset = Item.objects.filter(
             watchlist__user=user
-        ).all()
+        )
         return queryset
 
 
@@ -77,5 +77,5 @@ class InventoryViewSet(
         user = self.request.user
         queryset = Inventory.objects.filter(
             user=user
-        ).all()
+        )
         return queryset

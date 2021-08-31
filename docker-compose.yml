@@ -3,24 +3,13 @@ version: "3.9"
 services:
   db:
     image: postgres
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+    env_file:
+    - .env
 
   core:
     build: core
-    environment:
-      - DJANGO_DEBUG=${DJANGO_DEBUG}
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
-      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
-      - DJANGO_DB_ENGINE=${DJANGO_DB_ENGINE}
-      - DJANGO_DB_NAME=${POSTGRES_DB}
-      - DJANGO_DB_USER=${POSTGRES_USER}
-      - DJANGO_DB_PASSWORD=${POSTGRES_PASSWORD}
-      - DJANGO_DB_HOST=${DJANGO_DB_HOST}
-      - DJANGO_DB_PORT=${DJANGO_DB_PORT}
+    env_file:
+    - .env
     ports:
       - 8000:8000
     depends_on:
@@ -32,12 +21,16 @@ services:
 
   celery:
     build: core
+    env_file:
+      - .env
     command: celery -A project worker -l info
     depends_on:
       - redis
 
   celery-beat:
     build: core
+    env_file:
+      - .env
     command: celery -A project beat -l info
     depends_on:
       - redis
