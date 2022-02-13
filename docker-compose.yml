@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres
+    env_file:
+    - .env
+
+  core:
+    build: core
+    env_file:
+    - .env
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+      - redis
+
+  redis:
+    image: redis:alpine
+
+  celery:
+    build: core
+    env_file:
+      - .env
+    command: celery -A project worker -l info
+    depends_on:
+      - redis
+
+  celery-beat:
+    build: core
+    env_file:
+      - .env
+    command: celery -A project beat -l info
+    depends_on:
+      - redis
